@@ -1,0 +1,10 @@
+import { Link, useNavigate } from "react-router-dom";
+import { useStore } from "./StoreContext.jsx";
+import "./Cart.css";
+export default function Cart() {
+  const { cart, removeFromCart, updateQuantity, placeOrder } = useStore();
+  const navigate = useNavigate();
+  const total = cart.reduce((sum,item)=>sum+Math.round(item.price*(1-(item.discount||0)/100))*item.quantity,0);
+  const checkout = () => { const result=placeOrder(); if(result.ok) { alert(`Order ${result.order.id} placed successfully!`); navigate("/orders"); } else alert(result.message); };
+  return <section className="cart-page"><div className="page-title"><p className="eyebrow">YOUR SELECTION</p><h1>Shopping bag</h1></div>{!cart.length ? <div className="empty-state"><p>Your bag is waiting for something special.</p><Link className="button button-dark" to="/products">Explore products</Link></div> : <div className="cart-layout"><div className="cart-items">{cart.map(item=><article className="cart-item" key={`${item.id}-${item.size}`}><img src={item.image} alt={item.name}/><div className="cart-item-copy"><h3>{item.name}</h3><p>Size: {item.size}</p><strong>₹{Math.round(item.price*(1-(item.discount||0)/100)).toLocaleString("en-IN")}</strong><div className="quantity-control"><button onClick={()=>updateQuantity(item.id,item.size,item.quantity-1)}>−</button><span>{item.quantity}</span><button onClick={()=>updateQuantity(item.id,item.size,item.quantity+1)}>+</button></div></div><button className="remove-button" onClick={()=>removeFromCart(item.id,item.size)}>Remove</button></article>)}</div><aside className="order-summary"><h2>Order summary</h2><div className="summary-line"><span>Subtotal</span><strong>₹{total.toLocaleString("en-IN")}</strong></div><div className="summary-line"><span>Delivery</span><strong>Free</strong></div><div className="summary-line total"><span>Total</span><strong>₹{total.toLocaleString("en-IN")}</strong></div><button className="button button-dark full-button" onClick={checkout}>Place order</button></aside></div>}</section>;
+}
