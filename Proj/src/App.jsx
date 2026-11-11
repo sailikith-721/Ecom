@@ -16,13 +16,21 @@ import ManageProducts from "./ManageProducts.jsx";
 import ManageOrders from "./ManageOrders.jsx";
 import "./App.css";
 import "./responsive.css";
+import { useStore } from "./StoreContext.jsx";
+
 
 function Protected({ children, admin = false }) {
-  const user = JSON.parse(localStorage.getItem("sn-user") || "null");
+  const { user } = useStore();
+
   if (!user) return <Navigate to="/login" replace />;
-  if (admin && user.role !== "admin") return <Navigate to="/" replace />;
+
+  if (admin && user.role !== "admin") {
+    return <Navigate to="/" replace />;
+  }
+
   return children;
 }
+
 
 export default function App() {
   return <>

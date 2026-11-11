@@ -36,15 +36,51 @@ export function StoreProvider({ children }) {
     return { ok: true };
   };
 
-  const login = (email, password) => {
-    const found = users.find((u) => u.email.toLowerCase() === email.toLowerCase() && u.password === password);
-    if (found) { setUser(found); return { ok: true }; }
-    if (email === "admin@sensation.com" && password === "admin123") {
-      const admin = { name: "Administrator", email, role: "admin" };
-      setUser(admin); return { ok: true };
-    }
-    return { ok: false, message: "Invalid email or password." };
+  
+const login = (email, password) => {
+  const normalizedEmail = email.trim().toLowerCase();
+
+  // ADMIN LOGIN
+  if (
+    normalizedEmail === "admin@sensation.com" &&
+    password === "admin123"
+  ) {
+    const admin = {
+      name: "Administrator",
+      email: "admin@sensation.com",
+      role: "admin"
+    };
+
+    setUser(admin);
+
+    return {
+      ok: true,
+      role: "admin"
+    };
+  }
+
+  // CUSTOMER LOGIN
+  const found = users.find(
+    (u) =>
+      u.email.trim().toLowerCase() === normalizedEmail &&
+      u.password === password
+  );
+
+  if (found) {
+    setUser(found);
+
+    return {
+      ok: true,
+      role: "client"
+    };
+  }
+
+  return {
+    ok: false,
+    message: "Invalid email or password."
   };
+};
+
 
   const logout = () => setUser(null);
   const addToCart = (product, size, quantity = 1) => setCart((prev) => {
